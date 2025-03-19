@@ -6,7 +6,6 @@ yarn-error.log*
 package-lock.json
 
 # 🔹 Build Files
-/build
 /dist
 
 # 🔹 Environment Variables
