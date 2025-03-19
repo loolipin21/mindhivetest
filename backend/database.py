@@ -14,8 +14,8 @@ DB_CONFIG = {
 def get_db_connection():
     try:
         conn = psycopg2.connect(**DB_CONFIG, cursor_factory=RealDictCursor)
-        print("✅ Database connection successful!")  # Debug log
+        print("✅ Database connection successful!")  
         return conn
     except Exception as e:
-        print(f"❌ Database connection failed: {e}")  # Error log
+        print(f"❌ Database connection failed: {e}") 
         return None

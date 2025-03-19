@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Query
 from database import get_db_connection
-
+import os
+import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 
 # Initialize FastAPI
