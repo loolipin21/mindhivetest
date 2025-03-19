@@ -70,3 +70,8 @@ def search_by_city(city: str = Query(..., description="Filter Subway outlets by 
 @app.get("/")
 def home():
     return {"message": "Welcome to the Subway Outlets API 🚀"}
+
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 8080))  # Use Railway-assigned port
+    print(f"🚀 Starting FastAPI on port {port}...")  # Log output
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level="debug")
