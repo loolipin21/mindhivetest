@@ -68,17 +68,6 @@ GET /outlets/
 
 Example:
 
-📍 Get Nearest Outlets
-
-GET /outlets/nearest/?lat=<latitude>&lon=<longitude>&radius=<radius>
-
-Example:
-
-🏢 Get Outlets in a City
-
-GET /outlets/city/?city=<city_name>
-
-Example:
 
 🕒 Get Outlet Operating Hours
 
