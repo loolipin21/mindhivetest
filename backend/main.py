@@ -3,7 +3,6 @@ from database import get_db_connection
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 import os
-import spacy
 import re
 from datetime import datetime
 from fastapi.responses import JSONResponse
@@ -11,7 +10,6 @@ from fastapi.responses import JSONResponse
 
 # Initialize FastAPI
 app = FastAPI()
-nlp = spacy.load("en_core_web_sm")
 
 @app.on_event("startup")
 async def startup_event():
