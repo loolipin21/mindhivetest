@@ -45,3 +45,26 @@ export const getNearbyOutlets = async (lat, lon, radius = 0.05) => {
     return [];
   }
 };
+
+export const getChatbotResponse = async (query, userId) => {
+  try {
+    const response = await axios.get(
+      `${API_URL}/search/?query=${encodeURIComponent(query)}&user_id=${userId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Chatbot error:", error);
+    return { status: "error", message: "Error processing your request." };
+  }
+};
+
+
+export const selectChatbotLocation = async (userId, choice) => {
+  try {
+    const response = await axios.get(`${API_URL}/select/?user_id=${userId}&choice=${choice}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error selecting location:", error);
+    return { status: "error", message: "Error processing your request." };
+  }
+};

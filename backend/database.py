@@ -8,7 +8,7 @@ DB_CONFIG = {
     "password": os.getenv("DB_PASSWORD"),
     "host": os.getenv("DB_HOST"),
     "port": os.getenv("DB_PORT"),
-    "sslmode": "require"
+    "sslmode": "required"
 }
 
 def get_db_connection():
@@ -19,3 +19,22 @@ def get_db_connection():
     except Exception as e:
         print(f"❌ Database connection failed: {e}") 
         return None
+
+# For Local db testing
+# import psycopg2
+# from psycopg2.extras import RealDictCursor
+# import os
+
+# # PostgreSQL Connection Details
+# DB_CONFIG = {
+#     "dbname": "subway_db",
+#     "user": "subway_admin",
+#     "password": "password",
+#     "host": "localhost",
+#     "port": "5432"
+# }
+
+# # Function to Connect to PostgreSQL
+# def get_db_connection():
+#     conn = psycopg2.connect(**DB_CONFIG, cursor_factory=RealDictCursor)
+#     return conn

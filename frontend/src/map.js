@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
-import { getAllOutlets } from "./api";
+import { getAllOutlets, getChatbotResponse, selectChatbotLocation } from "./api";
 import "mapbox-gl/dist/mapbox-gl.css";
 import * as turf from "@turf/turf";
-import { Input, Card, List } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { Input, Card, List, Button } from "antd";
+import { SearchOutlined, SendOutlined } from "@ant-design/icons";
 import "antd/dist/reset.css";
 
 const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN;
@@ -19,6 +19,10 @@ function MapComponent() {
   const [selectedOutlet, setSelectedOutlet] = useState(null);
   const [nearbyOutlets, setNearbyOutlets] = useState([]);
   const [markers, setMarkers] = useState([]);
+  const [chatQuery, setChatQuery] = useState(""); // Stores user input
+  const [chatResponse, setChatResponse] = useState("");
+  const [options, setOptions] = useState([]);
+  const [userId] = useState(`user_${Math.random().toString(36).substr(2, 9)}`);
 
   useEffect(() => {
     async function fetchData() {
@@ -182,6 +186,67 @@ function MapComponent() {
     }
   };
 
+  const handleChatSubmit = async () => {
+    if (!chatQuery.trim()) return;
+  
+    if (options && options.length > 0 && !isNaN(chatQuery)) {
+      const choice = parseInt(chatQuery, 10);
+      if (choice >= 1 && choice <= options.length) {
+        await handleSelection(choice);
+        setChatQuery("");
+        return;
+      } else {
+        setChatResponse("Invalid selection. Please choose a valid number.");
+        setChatQuery("");
+        return;
+      }
+    }
+  
+    try {
+      const response = await getChatbotResponse(chatQuery, userId);
+      const receivedOptions = response.options || [];
+      if (response.status === "multiple") {
+        setOptions(receivedOptions); 
+        setChatResponse(response.message);
+      } else {
+        setOptions([]);
+        setChatResponse(response.message);
+      }
+    } catch (error) {
+      setChatResponse("Error processing your request.");
+    }
+    setChatQuery("");
+  };
+  
+  
+  const handleSelection = async (choiceIndex) => {
+    console.log(`🔍 User selected choice: ${choiceIndex}`);
+
+    if (choiceIndex < 1 || choiceIndex > options.length) {
+        setChatResponse("Invalid selection. Please choose a valid number.");
+        return;
+    }
+
+    try {
+        console.log(`📡 Sending request to selectChatbotLocation: userId=${userId}, choice=${choiceIndex}`);
+        
+        const response = await selectChatbotLocation(userId, choiceIndex);
+        console.log("📩 API Response:", response);
+
+        if (response.status === "success" && response.operating_hours) {
+            setChatResponse(`✅ ${response.outlet} is open:\n📅 ${response.operating_hours}`);
+        } else {
+            setChatResponse(response.message);
+        }
+
+        setOptions([]); // Clear options after selection
+    } catch (error) {
+        console.error("❌ Error processing selection:", error);
+        setChatResponse("Error processing your request.");
+    }
+};
+
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
       <header className="text-center mb-6 w-full">
@@ -214,6 +279,46 @@ function MapComponent() {
               )}
               className="mt-2"
             />
+          )}
+        </Card>
+        <Card className="mb-4 shadow-md p-4">
+          <h2 className="text-xl font-bold text-gray-800 mb-2">Chat with Subway Assistant</h2>
+          <Input
+            placeholder="Ask about Subway outlets..."
+            value={chatQuery}
+            onChange={(e) => setChatQuery(e.target.value)}
+            size="large"
+            suffix={
+              <Button type="primary" icon={<SendOutlined />} onClick={handleChatSubmit} />
+            }
+          />
+
+          {/* Display Chatbot Response */}
+          {chatResponse && (
+            <div className="mt-3 p-3 bg-gray-100 rounded-lg text-gray-800 whitespace-pre-line">
+              <strong>Response:</strong> <br />
+              {chatResponse}
+            </div>
+          )}
+
+          {/* Display Multiple Choices if Needed */}
+          {options && options.length > 0 && (
+            <div className="mt-3 p-3 bg-white border rounded-lg">
+              <strong>Select a location:</strong>
+              <List
+                dataSource={options}
+                renderItem={(option, index) => (
+                  <List.Item>
+                    <Button
+                      type="link"
+                      onClick={() => handleSelection(index + 1)}
+                    >
+                      {index + 1}. {option}
+                    </Button>
+                  </List.Item>
+                )}
+              />
+            </div>
           )}
         </Card>
 
